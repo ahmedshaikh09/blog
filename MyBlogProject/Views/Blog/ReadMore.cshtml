@@ -1,0 +1,12 @@
+﻿
+@model ReadMoreBlogViewModel
+
+@{
+    ViewBag.Title = "ReadMore";
+}
+
+<h1 style="padding-top: 100px; text-align:center; color:darkgreen; font-family:Gabriola;">Read the Blog</h1>
+
+<h2  style="padding-top:20px; font-family: Calibri;">@Model.Title</h2>
+<p>@Html.Raw(Model.Body)</p>
+<p style="padding-top:20px; font-style: italic; color: seagreen;">@Model.DateCreated</p>

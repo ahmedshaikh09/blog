@@ -1,0 +1,41 @@
+﻿@model AddEditBlogViewModel
+
+@{
+    /**/
+
+    ViewBag.Title = "Edit";
+}
+
+@section scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/tinymce/tinymce.min.js"></script>
+    <script src="~/Scripts/tinymce/jquery.tinymce.min.js"></script>
+    <script src="~/Scripts/RegisterEditMovie.js"></script>
+    <script src="~/Scripts/AddEditBlog.js"></script>
+}
+<h3>let's make some changes..</h3>
+
+
+<form method="post">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+
+        @Html.LabelFor(p => Model.Title, "Blog Title:")
+        @Html.TextBoxFor(p => Model.Title, new { @class = "form-control", placeholder = "Blog Title" })
+
+    </div>
+    <div class="form-group">
+
+        @Html.LabelFor(p => Model.Body, "Body:")
+        @Html.TextAreaFor(p => Model.Body, new { @class = "form-control", id = "body-field", placeholder = "Body", rows = 5, columns = 5 })
+
+    </div>
+    <div class="form-group">
+        <input type="file" name="Media" />
+    </div>
+    <div class="">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+
+</form>
