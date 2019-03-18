@@ -22,7 +22,6 @@ namespace MyBlogProject.Models.Domain
         public Blog()
         {
             DateCreated = DateTime.Now;
-
         }
     }
 }

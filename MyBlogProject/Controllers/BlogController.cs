@@ -5,14 +5,19 @@ using MyBlogProject.Models.ViewModels;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Data.Entity;
 using System;
 using System.Web.Mvc;
+using System.Web;
 
-namespace MovieDatabase.Controllers
+namespace MyBlogProject.Controllers
 {
     public class BlogController : Controller
     {
-        private ApplicationDbContext DbContext;
+        private List<string> AllowedExtenions = new List<string>
+                { ".jpeg", ".jpg", ".gif", ".png" };
+
+        private ApplicationDbContext DbContext { get; set; }
 
         public BlogController()
         {
@@ -21,110 +26,70 @@ namespace MovieDatabase.Controllers
 
         public ActionResult Index()
         {
-            var userId = User.Identity.GetUserId();
-
-            var model = DbContext.Blogs
+            var blogs = DbContext.Blogs
                 .Select(p => new IndexBlogViewModel
                 {
                     Id = p.Id,
-                    Title = p.Title,
-                    Published = p.Published,
                     Body = p.Body,
-                    DateCreated = p.DateCreated,          
+                    MediaUrl = p.MediaUrl,
+                    Title = p.Title,
+                    DateCreated = p.DateCreated,
+                    Published = p.Published,
+                    UserEmail = p.User.Email
                 }).ToList();
 
-            return View(model);
+            return View(blogs);
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
+        [Route("Blog/Index")]
         public ActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Add(AddEditBlogViewModel formData)
+        [Authorize(Roles = "Admin")]
+         [Route("Blog/{title}")]
+        public ActionResult Add(string title, AddEditBlogViewModel formData)
         {
-            return AddBlog(null, formData);
-        }
 
-        private ActionResult AddBlog(int? id, AddEditBlogViewModel formData)
-        {
+            title = formData.Title.Replace(" ", "-");
+
             if (!ModelState.IsValid)
             {
                 return View();
             }
 
-            var userId = User.Identity.GetUserId();
-
-            if (DbContext.Blogs.Any(p => p.UserId == userId &&
-            p.Title == formData.Title &&
-            (!id.HasValue || p.Id != id.Value)))
+            if (formData.FileUpload != null)
             {
-                ModelState.AddModelError(nameof(AddEditBlogViewModel.Title),
-                    "Looks like there is a Blog already with that title");
+                var fileExtension = Path.GetExtension(formData.FileUpload.FileName).ToLower();
 
-                return View();
-            }
-
-            string fileExtension;
-
-            //Validating file upload
-            if (formData.Media != null)
-            {
-                fileExtension = Path.GetExtension(formData.Media.FileName);
-
-                if (!MyBlogProject.Constants.AllowedFileExtensions.Contains(fileExtension))
+                if (!AllowedExtenions.Contains(fileExtension))
                 {
-                    ModelState.AddModelError("", "File extension is not allowed.");
-
+                    ModelState.AddModelError("", "File extension is not allowed");
                     return View();
                 }
             }
 
-            Blog blog;
+            var userId = User.Identity.GetUserId();
 
-            if (!id.HasValue)
-            {
-                blog = new Blog();
-                blog.UserId = userId;
-                DbContext.Blogs.Add(blog);
-            }
-            else
-            {
-                blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id && p.UserId == userId);
-
-                if (blog == null)
-                {
-                    return RedirectToAction(nameof(BlogController.Index));
-                }
-            }
-
-            blog.Title = formData.Title;
+            var blog = new Blog();           
+            blog.UserId = userId;
             blog.Body = formData.Body;
+            blog.Title = formData.Title;
+            blog.Published = formData.Published;
+            blog.MediaUrl = UploadFile(formData.FileUpload);
 
-
-            //Handling file upload
-            if (formData.Media != null)
-            {
-                if (!Directory.Exists(MyBlogProject.Constants.MappedUploadFolder))
-                {
-                    Directory.CreateDirectory(MyBlogProject.Constants.MappedUploadFolder);
-                }
-
-                var fileName = formData.Media.FileName;
-                var fullPathWithName = MyBlogProject.Constants.MappedUploadFolder + fileName;
-
-                formData.Media.SaveAs(fullPathWithName);
-
-                blog.MediaUrl = MyBlogProject.Constants.UploadFolder + fileName;
-            }
+            DbContext.Blogs.Add(blog);
             DbContext.SaveChanges();
 
             return RedirectToAction(nameof(BlogController.Index));
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int? id)
         {
             if (!id.HasValue)
@@ -132,31 +97,61 @@ namespace MovieDatabase.Controllers
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-            var userId = User.Identity.GetUserId();
-
-            var blog = DbContext.Blogs.FirstOrDefault(
-                p => p.Id == id && p.UserId == userId);
+            var blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id.Value);
 
             if (blog == null)
             {
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-
             var model = new AddEditBlogViewModel();
-            model.Title = blog.Title;
-            model.DateCreated = blog.DateCreated;
-            model.Published = blog.Published;
             model.Body = blog.Body;
-            model.DateUpdated = DateTime.Now;
+            model.MedialUrl = blog.MediaUrl;
+            model.Title = blog.Title;
+            model.Published = blog.Published;
 
             return View(model);
         }
 
         [HttpPost]
-        public ActionResult Edit(int id, AddEditBlogViewModel formData)
+        [Authorize(Roles = "Admin")]
+        public ActionResult Edit(int? id, AddEditBlogViewModel model)
         {
-            return AddBlog(id, formData);
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            if (model.FileUpload != null)
+            {
+                var fileExtension = Path.GetExtension(model.FileUpload.FileName).ToLower();
+
+                if (!AllowedExtenions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("", "File extension is not allowed");
+                    return View();
+                }
+            }
+            var blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id.Value);
+
+            blog.Published = model.Published;
+            blog.Title = model.Title;
+            blog.Body = model.Body;
+            blog.DateUpdated = DateTime.Now;
+
+            if (model.FileUpload != null)
+            {
+                blog.MediaUrl = UploadFile(model.FileUpload);
+            }
+
+            DbContext.SaveChanges();
+
+            return RedirectToAction(nameof(BlogController.Index));
         }
 
         [HttpPost]
@@ -168,42 +163,65 @@ namespace MovieDatabase.Controllers
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-            var userId = User.Identity.GetUserId();
+            var blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id.Value);
 
-            var blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id && p.UserId == userId);
-
-            if (blog != null)
+            if (blog == null)
             {
-                DbContext.Blogs.Remove(blog);
-                DbContext.SaveChanges();
+                return RedirectToAction(nameof(BlogController.Index));
             }
+
+            DbContext.Blogs.Remove(blog);
+            DbContext.SaveChanges();
 
             return RedirectToAction(nameof(BlogController.Index));
         }
 
         [HttpGet]
-        public ActionResult ReadMore(int? id)
+        [Route("Blog/{title}")]
+        public ActionResult ReadMore(string title)
         {
-            if (!id.HasValue)
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
                 return RedirectToAction(nameof(BlogController.Index));
+            }
 
-            var userId = User.Identity.GetUserId();
-
-            var blog = DbContext.Blogs.FirstOrDefault(p =>
-            p.Id == id.Value &&
-            p.UserId == userId);
+            var blog = DbContext.Blogs.FirstOrDefault(p => p.Title == title);
 
             if (blog == null)
+            {
                 return RedirectToAction(nameof(BlogController.Index));
+            }
 
             var model = new ReadMoreBlogViewModel();
-            model.Title = blog.Title;
-            model.DateCreated = blog.DateCreated;
-            model.Published = blog.Published;
             model.Body = blog.Body;
+            model.DateCreated = blog.DateCreated;
+            model.DateUpdated = blog.DateUpdated;
+            model.Title = blog.Title;
             model.MediaUrl = blog.MediaUrl;
 
-            return View(model);
+            return View("ReadMore" , model);
+        }
+
+        private string UploadFile(HttpPostedFileBase file)
+        {
+            if (file != null)
+            {
+                var uploadFolder = "~/Upload/";
+                var mappedFolder = Server.MapPath(uploadFolder);
+
+                if (!Directory.Exists(mappedFolder))
+                {
+                    Directory.CreateDirectory(mappedFolder);
+                }
+
+                file.SaveAs(mappedFolder + file.FileName);
+
+                return uploadFolder + file.FileName;
+            }
+
+
+            return null;
         }
     }
 }
