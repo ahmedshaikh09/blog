@@ -35,7 +35,8 @@ namespace MyBlogProject.Controllers
                     Title = p.Title,
                     DateCreated = p.DateCreated,
                     Published = p.Published,
-                    UserEmail = p.User.Email
+                    UserEmail = p.User.Email,
+                    Comments = p.Comment,
                 }).ToList();
 
             return View(blogs);
@@ -43,7 +44,7 @@ namespace MyBlogProject.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        [Route("Blog/Index")]
+        //[Route("Blog/Index")]
         public ActionResult Add()
         {
             return View();
@@ -51,11 +52,11 @@ namespace MyBlogProject.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-         [Route("Blog/{title}")]
+         //[Route("Blog/{title}")]
         public ActionResult Add(string title, AddEditBlogViewModel formData)
         {
 
-            title = formData.Title.Replace(" ", "-");
+            //title = formData.Title.Replace(" ", "-");
 
             if (!ModelState.IsValid)
             {
@@ -177,7 +178,7 @@ namespace MyBlogProject.Controllers
         }
 
         [HttpGet]
-        [Route("Blog/{title}")]
+        //[Route("Blog/{title}")]
         public ActionResult ReadMore(string title)
         {
 
@@ -201,6 +202,101 @@ namespace MyBlogProject.Controllers
             model.MediaUrl = blog.MediaUrl;
 
             return View("ReadMore" , model);
+        }
+
+        [HttpGet]
+        public ActionResult AddComment()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddComment(int id, AddEditCommentViewModel model)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            var comment = new Comment();
+
+            var userId = User.Identity.GetUserId();
+            Blog blog;
+            blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id);
+            comment.BlogId = blog.Id;
+            comment.UserId = userId;
+            comment.UserEmail = model.UserEmail;
+            comment.CommentBody = model.CommentBody;
+
+
+            DbContext.Comments.Add(comment);
+            DbContext.SaveChanges();
+
+     
+            return RedirectToAction(nameof(BlogController.Index));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public ActionResult EditComment(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            var comment = DbContext.Comments.FirstOrDefault(p => p.Id == id.Value);
+
+            if (comment == null)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            var model = new AddEditCommentViewModel();
+            model.CommentBody = comment.CommentBody;
+          
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public ActionResult EditComment(int? id, AddEditCommentViewModel model)
+        {
+            if (!id.HasValue)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            var comment = DbContext.Comments.FirstOrDefault(p => p.Id == id.Value);
+
+            comment.CommentBody = model.CommentBody;
+            DbContext.SaveChanges();
+
+            return RedirectToAction(nameof(BlogController.Index));
+        }
+
+        public ActionResult DeleteComment(int? Id)
+        {
+            if (!Id.HasValue)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            var comment = DbContext.Comments.FirstOrDefault(p => p.Id == Id.Value);
+
+            if (comment == null)
+            {
+                return RedirectToAction(nameof(BlogController.Index));
+            }
+
+            DbContext.Comments.Remove(comment);
+            DbContext.SaveChanges();
+
+            return RedirectToAction(nameof(BlogController.Index));
         }
 
         private string UploadFile(HttpPostedFileBase file)

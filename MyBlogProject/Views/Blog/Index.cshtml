@@ -9,7 +9,7 @@
     <script src="~/Scripts/indexBlog.js" type="text/javascript"></script>
 }
 
-<header class="masthead" style="background-image:url('/Content/img/post-sample-image.jpg')">
+<header class="masthead" style="background-image:url('/Content/img/blogss.jpg')">
     <div class="overlay">
     </div>
     <div class="container">
@@ -42,17 +42,18 @@ else
 
             <div class="col-lg-8 col-md-10 mx-auto">
                 @foreach (var record in Model)
+
                 {
                     if (record.Published == false && User.IsInRole("Admin"))
                     {
-                        <h2 style="padding-top:70px; font-family: 'Global Sans Serif'; color: seagreen;">
+                        <h1 style="padding-top:70px; padding-bottom: 10px ;font-family: 'Global Sans Serif'  ; color: seagreen;">
                             @record.Title
-                        </h2>
+                        </h1>
                         <div class="row">
                             <div class="col-md-2">
                                 @if (!string.IsNullOrWhiteSpace(record.MediaUrl))
                                 {
-                                    <img class="img-responsive" src="@Url.Content(record.MediaUrl)" />
+                                    <img style ="height : 450px; width: 550px; border-radius: 20px;"class="img-responsive" src="@Url.Content(record.MediaUrl)" />
                                 }
                             </div>
                         </div>
@@ -71,8 +72,8 @@ else
                             Published:
                             @record.Published <br />
 
-                        </span>
 
+                        </span>
 
                         <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { title = record.Title })">Read More</a>
 
@@ -86,14 +87,14 @@ else
                     }
                     else if (record.Published == true)
                     {
-                        <h2 style="padding-top:70px; font-family: 'Global Sans Serif'; color: seagreen;">
+                        <h1 style="padding-top:70px;padding-bottom: 10px ; font-family: 'Global Sans Serif'; color: seagreen;">
                             @record.Title
-                        </h2>
+                        </h1>
                         <div class="row">
                             <div class="col-md-2">
                                 @if (!string.IsNullOrWhiteSpace(record.MediaUrl))
                                 {
-                                    <img class="img-responsive" src="@Url.Content(record.MediaUrl)" />
+                                    <img style ="height : 450px; width: 550px; border-radius: 20px;" class="img-responsive" src="@Url.Content(record.MediaUrl)" />
                                 }
                             </div>
                         </div>
@@ -106,6 +107,27 @@ else
 
                         </span>
 
+
+                        foreach (var comment in record.Comments)
+                        {
+                            <hr />
+                            <span style="padding-top:20px; font-style: italic; color: dimgrey;">
+                                Comment by: @comment.UserEmail<br />
+                                @comment.CommentBody
+
+
+                            </span>
+                            <a class="btn btn-primary" href="@Url.Action("EditComment", "Blog", new { id = comment.Id })">Edit Comment</a>
+                            <br />
+                            <br />
+
+                            <form method="post" action="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })">
+                                <a href="#" class="btn-delete">Delete Comment</a>
+                            </form>
+                            <hr />
+                        }
+
+
                         if (User.IsInRole("Admin"))
                         {
 
@@ -116,8 +138,8 @@ else
                             </span>
                         }
 
+                        <a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = record.Id })">Add Comment</a>
                         <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { title = record.Title })">Read More</a>
-
                         if (User.IsInRole("Admin"))
                         {
                             <a class="btn btn-primary" href="@Url.Action("Edit", "Blog", new { id = record.Id })">Edit</a>
@@ -129,6 +151,7 @@ else
                         }
                     }
                 }
+
 
             </div>
 

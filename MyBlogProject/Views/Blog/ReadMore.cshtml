@@ -5,16 +5,15 @@
     ViewBag.Title = "ReadMore";
 }
 
-<h1 style="padding-top: 100px; text-align:center; color:darkgreen; font-family:Gabriola;">Read the Blog</h1>
+<h1 style="padding-top: 100px; padding-bottom:10px;text-align:center; font-family: Cambria, Cochin, Georgia, Times, Times New Roman, serif; color: dimgray">@Model.Title</h1>
 <div class="row">
     <div class="col-md-2">
         @if (!string.IsNullOrWhiteSpace(Model.MediaUrl))
         {
-            <img class="img-responsive" src="@Url.Content(Model.MediaUrl)" />
-        }
+            <img style="border-radius: 10px;height:450px; width: 1150px;" class="img-responsive" src="@Url.Content(Model.MediaUrl)" />
+        }    
     </div>
 </div>
-<h2 style="padding-top:20px; font-family: Calibri;">@Model.Title</h2>
 <p>@Html.Raw(Model.Body)</p>
 <span style="padding-top:20px; font-style: italic; color: seagreen;">Date Published: @Model.DateCreated</span><br />
 @if (Model.DateUpdated != null)

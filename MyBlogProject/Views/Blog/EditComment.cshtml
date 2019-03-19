@@ -1,0 +1,22 @@
+﻿@model AddEditCommentViewModel
+
+@{
+    ViewBag.Title = "EditComment";
+}
+
+<h2>EditComment</h2>
+
+<form method="post" enctype="multipart/form-data">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+
+        @Html.LabelFor(p => Model.CommentBody, "Comment:")
+        @Html.TextAreaFor(p => Model.CommentBody, new { @class = "form-control", id = "body-field", placeholder = "Comment", rows = 5, columns = 5 })
+
+    </div>
+
+    <div class="">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>

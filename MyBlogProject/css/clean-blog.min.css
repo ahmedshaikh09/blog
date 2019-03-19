@@ -228,7 +228,7 @@ header.masthead .page-heading, header.masthead .site-heading {
 
 @media only screen and (min-width:768px) {
     header.masthead .page-heading h1, header.masthead .site-heading h1 {
-        font-size: 80px
+        font-size: 40px
     }
 }
 
@@ -389,8 +389,8 @@ footer {
 .btn {
     background-color: yellowgreen;
     font-size: 14px;
-    font-weight: 800;
-    padding: 15px 25px;
+    font-weight: 100;
+    padding: 5px 10px;
     letter-spacing: 1px;
     text-transform: uppercase;
     border-radius: 0;

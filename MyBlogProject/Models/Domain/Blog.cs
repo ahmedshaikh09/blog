@@ -18,10 +18,13 @@ namespace MyBlogProject.Models.Domain
         public string MediaUrl { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
+        public virtual List<Comment> Comment { get; set; }
+
 
         public Blog()
         {
             DateCreated = DateTime.Now;
+            Comment = new List<Comment>();
         }
     }
 }
