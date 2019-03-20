@@ -11,7 +11,7 @@ namespace MyBlogProject.Models.ViewModels
         [Required]
         public string CommentBody { get; set; }
 
-        public string UserEmail { get; set; }
+        public string EditReason { get; set; }
     }
 
 }

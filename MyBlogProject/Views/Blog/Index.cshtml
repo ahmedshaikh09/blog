@@ -53,7 +53,7 @@ else
                             <div class="col-md-2">
                                 @if (!string.IsNullOrWhiteSpace(record.MediaUrl))
                                 {
-                                    <img style ="height : 450px; width: 550px; border-radius: 20px;"class="img-responsive" src="@Url.Content(record.MediaUrl)" />
+                                    <img style="height : 450px; width: 550px; border-radius: 20px;" class="img-responsive" src="@Url.Content(record.MediaUrl)" />
                                 }
                             </div>
                         </div>
@@ -75,7 +75,7 @@ else
 
                         </span>
 
-                        <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { title = record.Title })">Read More</a>
+                        <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { slug = record.Slug })">Read More</a>
 
                         <a class="btn btn-primary" href="@Url.Action("Edit", "Blog", new { id = record.Id })">Edit</a>
 
@@ -94,7 +94,7 @@ else
                             <div class="col-md-2">
                                 @if (!string.IsNullOrWhiteSpace(record.MediaUrl))
                                 {
-                                    <img style ="height : 450px; width: 550px; border-radius: 20px;" class="img-responsive" src="@Url.Content(record.MediaUrl)" />
+                                    <img style="height : 450px; width: 550px; border-radius: 20px;" class="img-responsive" src="@Url.Content(record.MediaUrl)" />
                                 }
                             </div>
                         </div>
@@ -111,19 +111,38 @@ else
                         foreach (var comment in record.Comments)
                         {
                             <hr />
-                            <span style="padding-top:20px; font-style: italic; color: dimgrey;">
-                                Comment by: @comment.UserEmail<br />
+                            <span style="padding-top:20px; font-size: 17px; ">
+                                Comment: <br />
                                 @comment.CommentBody
+                            </span> <br />
 
+                            if (comment.EditReason != null)
+                            {
+                                <span style="padding-top:20px; font-size: 17px; ">
+                                    Edit Reason: <br />
+                                    @comment.EditReason
+                                </span> <br />
+                            }
 
-                            </span>
-                            <a class="btn btn-primary" href="@Url.Action("EditComment", "Blog", new { id = comment.Id })">Edit Comment</a>
-                            <br />
-                            <br />
+                            <span style="padding-top:15px; font-style: italic; color: dimgrey; font-size: 14px;">
+                                Comment Added: @comment.DateAdded
+                            </span> <br />
 
-                            <form method="post" action="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })">
-                                <a href="#" class="btn-delete">Delete Comment</a>
-                            </form>
+                            if (comment.DateChanged != null)
+                            {
+                                <span style="padding-top:10px; font-style: italic; color: dimgrey; font-size: 14px; ">Comment Edited: @comment.DateChanged </span>
+                            }
+
+                            if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                            {
+                                <a class="btn btn-primary" href="@Url.Action("EditComment", "Blog", new { id = comment.Id })">Edit Comment</a>
+                                <br />
+                                <br />
+
+                                <form method="post" action="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })">
+                                    <a href="#" class="btn-delete">Delete Comment</a>
+                                </form>
+                            }
                             <hr />
                         }
 
@@ -139,7 +158,7 @@ else
                         }
 
                         <a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = record.Id })">Add Comment</a>
-                        <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { title = record.Title })">Read More</a>
+                        <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { slug = record.Slug })">Read More</a>
                         if (User.IsInRole("Admin"))
                         {
                             <a class="btn btn-primary" href="@Url.Action("Edit", "Blog", new { id = record.Id })">Edit</a>

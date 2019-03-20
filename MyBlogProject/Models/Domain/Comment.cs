@@ -11,14 +11,14 @@ namespace MyBlogProject.Models.Domain
 
         public virtual ApplicationUser User { get; set; }
         public string UserId { get; set; }
-        public string UserEmail { get; set; }
 
         public virtual Blog Blog { get; set; }
         public int BlogId { get; set; }
 
         public string CommentBody { get; set; }
+        public string EditReason { get; set; }
         public DateTime DateAdded { get; set; }
-
+        public DateTime? DateChanged { get; set; }
 
         public Comment()
         {

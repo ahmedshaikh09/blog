@@ -9,6 +9,8 @@ using System.Data.Entity;
 using System;
 using System.Web.Mvc;
 using System.Web;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MyBlogProject.Controllers
 {
@@ -36,6 +38,7 @@ namespace MyBlogProject.Controllers
                     DateCreated = p.DateCreated,
                     Published = p.Published,
                     UserEmail = p.User.Email,
+                    Slug = p.Slug,
                     Comments = p.Comment,
                 }).ToList();
 
@@ -44,19 +47,18 @@ namespace MyBlogProject.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        //[Route("Blog/Index")]
+       [Route("blog/View")]
         public ActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
+       [Route("blog/{slug}")]
         [Authorize(Roles = "Admin")]
-         //[Route("Blog/{title}")]
-        public ActionResult Add(string title, AddEditBlogViewModel formData)
+        
+        public ActionResult Add(string slug, AddEditBlogViewModel formData)
         {
-
-            //title = formData.Title.Replace(" ", "-");
 
             if (!ModelState.IsValid)
             {
@@ -76,12 +78,23 @@ namespace MyBlogProject.Controllers
 
             var userId = User.Identity.GetUserId();
 
-            var blog = new Blog();           
+            string str = formData.Title.ToLower();
+            str = str.Replace("-", " ");
+            str = Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            str = Regex.Replace(str, @"\s+", " ").Trim();
+            str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
+            str = Regex.Replace(str, @"\s", "-");
+
+
+            var blog = new Blog();
             blog.UserId = userId;
             blog.Body = formData.Body;
             blog.Title = formData.Title;
+            blog.Slug = str;
             blog.Published = formData.Published;
             blog.MediaUrl = UploadFile(formData.FileUpload);
+
+
 
             DbContext.Blogs.Add(blog);
             DbContext.SaveChanges();
@@ -178,16 +191,16 @@ namespace MyBlogProject.Controllers
         }
 
         [HttpGet]
-        //[Route("Blog/{title}")]
-        public ActionResult ReadMore(string title)
+        [Route("blog/{slug}")]
+        public ActionResult ReadMore(string slug)
         {
-
-            if (string.IsNullOrWhiteSpace(title))
+            if (string.IsNullOrWhiteSpace(slug))
             {
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-            var blog = DbContext.Blogs.FirstOrDefault(p => p.Title == title);
+
+            var blog = DbContext.Blogs.FirstOrDefault(p => p.Slug == slug);
 
             if (blog == null)
             {
@@ -201,7 +214,8 @@ namespace MyBlogProject.Controllers
             model.Title = blog.Title;
             model.MediaUrl = blog.MediaUrl;
 
-            return View("ReadMore" , model);
+
+            return View("ReadMore", model);
         }
 
         [HttpGet]
@@ -225,18 +239,17 @@ namespace MyBlogProject.Controllers
             blog = DbContext.Blogs.FirstOrDefault(p => p.Id == id);
             comment.BlogId = blog.Id;
             comment.UserId = userId;
-            comment.UserEmail = model.UserEmail;
             comment.CommentBody = model.CommentBody;
 
 
             DbContext.Comments.Add(comment);
             DbContext.SaveChanges();
 
-     
+
             return RedirectToAction(nameof(BlogController.Index));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin , Moderator")]
         public ActionResult EditComment(int? id)
         {
             if (!id.HasValue)
@@ -253,12 +266,12 @@ namespace MyBlogProject.Controllers
 
             var model = new AddEditCommentViewModel();
             model.CommentBody = comment.CommentBody;
-          
+
             return View(model);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin , Moderator")]
         public ActionResult EditComment(int? id, AddEditCommentViewModel model)
         {
             if (!id.HasValue)
@@ -274,11 +287,13 @@ namespace MyBlogProject.Controllers
             var comment = DbContext.Comments.FirstOrDefault(p => p.Id == id.Value);
 
             comment.CommentBody = model.CommentBody;
+            comment.EditReason = model.EditReason;
+            comment.DateChanged = DateTime.Now;
             DbContext.SaveChanges();
 
             return RedirectToAction(nameof(BlogController.Index));
         }
-
+        [Authorize(Roles = "Admin , Moderator")]
         public ActionResult DeleteComment(int? Id)
         {
             if (!Id.HasValue)
@@ -315,7 +330,6 @@ namespace MyBlogProject.Controllers
 
                 return uploadFolder + file.FileName;
             }
-
 
             return null;
         }
