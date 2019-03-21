@@ -245,7 +245,7 @@ namespace MyBlogProject.Controllers
 
         [HttpPost]
 
-        public ActionResult AddComment(int id, AddEditCommentViewModel model)
+        public ActionResult AddComment(int id, AddCommentViewModel model)
         {
 
             if (!ModelState.IsValid)
@@ -282,7 +282,7 @@ namespace MyBlogProject.Controllers
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-            var model = new AddEditCommentViewModel();
+            var model = new EditCommentViewModel();
             model.CommentBody = comment.CommentBody;
 
             return View(model);
@@ -290,7 +290,7 @@ namespace MyBlogProject.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin , Moderator")]
-        public ActionResult EditComment(int? id, AddEditCommentViewModel model)
+        public ActionResult EditComment(int? id, EditCommentViewModel model)
         {
             if (!id.HasValue)
             {

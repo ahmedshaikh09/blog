@@ -6,12 +6,11 @@ using System.Web;
 
 namespace MyBlogProject.Models.ViewModels
 {
-    public class AddEditCommentViewModel
+    public class EditCommentViewModel
     {
         [Required]
         public string CommentBody { get; set; }
-
+        [Required]
         public string EditReason { get; set; }
     }
-
 }

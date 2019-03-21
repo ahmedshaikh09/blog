@@ -102,9 +102,6 @@ else
                                 }
                             </div>
                         </div>
-                        <p>
-                            @Html.Raw(record.Body)
-                        </p>
                         <span style="padding-top:20px; font-style: italic; color: seagreen;">
                             Posted on:
                             @record.DateCreated <br />
@@ -120,7 +117,6 @@ else
                             </span>
                         }
 
-                        @*<a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = record.Id })">Add Comment</a>*@
                         <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { slug = record.Slug })">Read More</a>
                         if (User.IsInRole("Admin"))
                         {

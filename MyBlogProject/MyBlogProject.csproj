@@ -188,7 +188,8 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\ViewModels\AddEditBlogViewModel.cs" />
-    <Compile Include="Models\ViewModels\AddEditCommentViewModel.cs" />
+    <Compile Include="Models\ViewModels\AddCommentViewModel.cs" />
+    <Compile Include="Models\ViewModels\EditCommentViewModel.cs" />
     <Compile Include="Models\ViewModels\IndexBlogViewModel.cs" />
     <Compile Include="Models\ViewModels\ReadMoreBlogViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
