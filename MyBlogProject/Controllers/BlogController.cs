@@ -225,24 +225,29 @@ namespace MyBlogProject.Controllers
             }
 
             var model = new ReadMoreBlogViewModel();
+            model.Id = blog.Id;
             model.Body = blog.Body;
             model.DateCreated = blog.DateCreated;
             model.DateUpdated = blog.DateUpdated;
             model.Title = blog.Title;
             model.MediaUrl = blog.MediaUrl;
+            model.Comments = blog.Comment;
 
             return View("ReadMore", model);
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult AddComment()
         {
             return View();
         }
 
         [HttpPost]
+
         public ActionResult AddComment(int id, AddEditCommentViewModel model)
         {
+
             if (!ModelState.IsValid)
             {
                 return View();
@@ -259,7 +264,7 @@ namespace MyBlogProject.Controllers
             DbContext.Comments.Add(comment);
             DbContext.SaveChanges();
 
-            return RedirectToAction(nameof(BlogController.Index));
+            return RedirectToAction(nameof(BlogController.ReadMore));
         }
 
         [Authorize(Roles = "Admin , Moderator")]
@@ -304,7 +309,7 @@ namespace MyBlogProject.Controllers
             comment.DateChanged = DateTime.Now;
             DbContext.SaveChanges();
 
-            return RedirectToAction(nameof(BlogController.Index));
+            return RedirectToAction(nameof(BlogController.ReadMore));
         }
         [Authorize(Roles = "Admin , Moderator")]
         public ActionResult DeleteComment(int? Id)
@@ -324,7 +329,7 @@ namespace MyBlogProject.Controllers
             DbContext.Comments.Remove(comment);
             DbContext.SaveChanges();
 
-            return RedirectToAction(nameof(BlogController.Index));
+            return Redirect(Request.UrlReferrer.PathAndQuery);
         }
 
         private string UploadFile(HttpPostedFileBase file)

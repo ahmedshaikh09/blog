@@ -14,7 +14,6 @@ namespace MyBlogProject.Models.Domain
 
         public virtual Blog Blog { get; set; }
         public int BlogId { get; set; }
-
         public string CommentBody { get; set; }
         public string EditReason { get; set; }
         public DateTime DateAdded { get; set; }

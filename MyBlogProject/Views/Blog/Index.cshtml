@@ -111,47 +111,8 @@ else
 
                         </span>
 
-                        foreach (var comment in record.Comments)
-                        {
-                            <hr />
-                            <span style="padding-top:20px; font-size: 17px; ">
-                                Comment: <br />
-                                @comment.CommentBody
-                            </span> <br />
-
-                            if (comment.EditReason != null)
-                            {
-                                <span style="padding-top:20px; font-size: 17px; ">
-                                    Edit Reason: <br />
-                                    @comment.EditReason
-                                </span> <br />
-                            }
-
-                            <span style="padding-top:15px; font-style: italic; color: dimgrey; font-size: 14px;">
-                                Comment Added: @comment.DateAdded
-                            </span> <br />
-
-                            if (comment.DateChanged != null)
-                            {
-                                <span style="padding-top:10px; font-style: italic; color: dimgrey; font-size: 14px; ">Comment Edited: @comment.DateChanged </span>
-                            }
-
-                            if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
-                            {
-                                <a class="btn btn-primary" href="@Url.Action("EditComment", "Blog", new { id = comment.Id })">Edit Comment</a>
-                                <br />
-                                <br />
-
-                                <form method="post" action="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })">
-                                    <a href="#" class="btn-delete">Delete Comment</a>
-                                </form>
-                            }
-                            <hr />
-                        }
-
                         if (User.IsInRole("Admin"))
                         {
-
                             <span style="padding-top:20px; font-style: italic; color: seagreen;">
                                 Published:
                                 @record.Published <br />
@@ -159,7 +120,7 @@ else
                             </span>
                         }
 
-                        <a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = record.Id })">Add Comment</a>
+                        @*<a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = record.Id })">Add Comment</a>*@
                         <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { slug = record.Slug })">Read More</a>
                         if (User.IsInRole("Admin"))
                         {

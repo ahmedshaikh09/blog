@@ -11,7 +11,7 @@
         @if (!string.IsNullOrWhiteSpace(Model.MediaUrl))
         {
             <img style="border-radius: 10px;height:450px; width: 1150px;" class="img-responsive" src="@Url.Content(Model.MediaUrl)" />
-        }    
+        }
     </div>
 </div>
 <p>@Html.Raw(Model.Body)</p>
@@ -20,3 +20,43 @@
 {
     <span style="padding-top:20px; font-style: italic; color: seagreen;">Updated: @Model.DateUpdated</span>
 }
+
+@foreach (var comment in Model.Comments)
+{
+    <hr />
+    <span style="padding-top:20px; font-size: 17px; ">
+        Comment: <br />
+        @comment.CommentBody
+    </span> <br />
+
+    if (comment.EditReason != null)
+    {
+        <span style="padding-top:20px; font-size: 17px; ">
+            Edit Reason: <br />
+            @comment.EditReason
+        </span> <br />
+    }
+
+    <span style="padding-top:15px; font-style: italic; color: dimgrey; font-size: 14px;">
+        Comment Added: @comment.DateAdded
+    </span> <br />
+
+    if (comment.DateChanged != null)
+    {
+        <span style="padding-top:10px; font-style: italic; color: dimgrey; font-size: 14px; ">Comment Edited: @comment.DateChanged </span>
+    }
+
+    if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+    {
+        <a class="btn btn-primary" href="@Url.Action("EditComment", "Blog", new { id = comment.Id })">Edit Comment</a>
+        <br />
+        <br />
+
+        <form method="post" action="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })">
+            <a href="@Url.Action("DeleteComment", "Blog", new { Id = comment.Id })" class="btn-delete">Delete Comment</a>
+        </form>
+    }
+    <hr />
+}
+
+    <a class="btn btn-primary" href="@Url.Action("AddComment", "Blog", new { id = Model.Id })">Add Comment</a>
