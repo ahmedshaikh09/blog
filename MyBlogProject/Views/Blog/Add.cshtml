@@ -25,21 +25,15 @@
     <script src="~/Scripts/tinymce/jquery.tinymce.min.js"></script>
     <script src="~/Scripts/AddEditBlog.js"></script>
 }
-
     <form method="post" enctype="multipart/form-data">
         @Html.ValidationSummary(false)
-
         <div class="form-group">
-
             @Html.LabelFor(p => Model.Title, "Blog Title:")
             @Html.TextBoxFor(p => Model.Title, new { @class = "form-control", placeholder = "Blog Title" })
-
         </div>
         <div class="form-group">
-
             @Html.LabelFor(p => Model.Body, "Body:")
             @Html.TextAreaFor(p => Model.Body, new { @class = "form-control", id = "body-field", placeholder = "Body", rows = 5, columns = 5 })
-
         </div>
         <div class="form-group">
             <input type="file" name="FileUpload" />
@@ -48,7 +42,6 @@
             <span>Published:</span>
             @Html.CheckBoxFor(p => Model.Published)
         </div>
-
         <div class="">
             <button type="submit" class="btn btn-default">Submit</button>
         </div>

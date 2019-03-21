@@ -5,11 +5,9 @@ using MyBlogProject.Models.ViewModels;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Data.Entity;
 using System;
 using System.Web.Mvc;
 using System.Web;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MyBlogProject.Controllers
@@ -26,9 +24,14 @@ namespace MyBlogProject.Controllers
             DbContext = new ApplicationDbContext();
         }
 
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
-            var blogs = DbContext.Blogs
+            if (search != null)
+            {
+                var blogs = DbContext.Blogs
+                .Where(p => p.Title.Contains(search) ||
+                                p.Body.Contains(search) ||
+                                p.Slug.Contains(search))
                 .Select(p => new IndexBlogViewModel
                 {
                     Id = p.Id,
@@ -42,24 +45,42 @@ namespace MyBlogProject.Controllers
                     Comments = p.Comment,
                 }).ToList();
 
-            return View(blogs);
+                return View(blogs);
+            }
+            else
+            {
+                var blogs = DbContext.Blogs
+                    .Select(p => new IndexBlogViewModel
+                    {
+                        Id = p.Id,
+                        Body = p.Body,
+                        MediaUrl = p.MediaUrl,
+                        Title = p.Title,
+                        DateCreated = p.DateCreated,
+                        Published = p.Published,
+                        UserEmail = p.User.Email,
+                        Slug = p.Slug,
+                        Comments = p.Comment,
+                    }).ToList();
+
+                return View(blogs);
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-       [Route("blog/View")]
+        [Route("blog/View")]
         public ActionResult Add()
         {
             return View();
         }
 
         [HttpPost]
-       [Route("blog/{slug}")]
+        [Route("blog/{slug}")]
         [Authorize(Roles = "Admin")]
-        
+
         public ActionResult Add(string slug, AddEditBlogViewModel formData)
         {
-
             if (!ModelState.IsValid)
             {
                 return View();
@@ -85,7 +106,6 @@ namespace MyBlogProject.Controllers
             str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
             str = Regex.Replace(str, @"\s", "-");
 
-
             var blog = new Blog();
             blog.UserId = userId;
             blog.Body = formData.Body;
@@ -93,8 +113,6 @@ namespace MyBlogProject.Controllers
             blog.Slug = str;
             blog.Published = formData.Published;
             blog.MediaUrl = UploadFile(formData.FileUpload);
-
-
 
             DbContext.Blogs.Add(blog);
             DbContext.SaveChanges();
@@ -199,7 +217,6 @@ namespace MyBlogProject.Controllers
                 return RedirectToAction(nameof(BlogController.Index));
             }
 
-
             var blog = DbContext.Blogs.FirstOrDefault(p => p.Slug == slug);
 
             if (blog == null)
@@ -214,7 +231,6 @@ namespace MyBlogProject.Controllers
             model.Title = blog.Title;
             model.MediaUrl = blog.MediaUrl;
 
-
             return View("ReadMore", model);
         }
 
@@ -227,7 +243,6 @@ namespace MyBlogProject.Controllers
         [HttpPost]
         public ActionResult AddComment(int id, AddEditCommentViewModel model)
         {
-
             if (!ModelState.IsValid)
             {
                 return View();
@@ -241,10 +256,8 @@ namespace MyBlogProject.Controllers
             comment.UserId = userId;
             comment.CommentBody = model.CommentBody;
 
-
             DbContext.Comments.Add(comment);
             DbContext.SaveChanges();
-
 
             return RedirectToAction(nameof(BlogController.Index));
         }
@@ -330,7 +343,6 @@ namespace MyBlogProject.Controllers
 
                 return uploadFolder + file.FileName;
             }
-
             return null;
         }
     }

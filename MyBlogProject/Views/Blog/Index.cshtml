@@ -27,15 +27,24 @@
 
 <a class="btn btn-primary" href="@Url.Action("Add", "Blog")">Upload New Vlog</a>
 
+<a class="btn btn-primary" href="@Url.Action("Index", "Blog")">View All Blogs</a> 
+<br />
+<br />
+<form method="get" action="@Url.Action("Index", "Blog")">
+    <input type="text" class="form-control" name="search" placeholder="Search Posts" /> <br />
+    <input type="submit" class="btn btn-primary" value="Search"/><br />
+    <hr />
+</form>
+
+
 @if (!Model.Any())
 {
     <div style="margin-top:15px;">
-        <p><strong>Ooppss! There are no blogs uploaded at the moment</strong></p>
+        <p><strong>Ooppss! No Blogs Found!</strong></p>
     </div>
 }
 else
 {
-
     <div class="container">
 
         <div class="row">
@@ -66,8 +75,6 @@ else
 
                         </span>
 
-
-
                         <span style="padding-top:20px; font-style: italic; color: seagreen;">
                             Published:
                             @record.Published <br />
@@ -76,14 +83,11 @@ else
                         </span>
 
                         <a class="btn btn-primary" href="@Url.Action("ReadMore", "Blog", new { slug = record.Slug })">Read More</a>
-
                         <a class="btn btn-primary" href="@Url.Action("Edit", "Blog", new { id = record.Id })">Edit</a>
 
                         <form method="post" action="@Url.Action("Delete", "Blog", new { id = record.Id })">
                             <a href="#" class="btn-delete">Delete</a>
                         </form>
-
-
                     }
                     else if (record.Published == true)
                     {
@@ -106,7 +110,6 @@ else
                             @record.DateCreated <br />
 
                         </span>
-
 
                         foreach (var comment in record.Comments)
                         {
@@ -146,7 +149,6 @@ else
                             <hr />
                         }
 
-
                         if (User.IsInRole("Admin"))
                         {
 
@@ -170,7 +172,6 @@ else
                         }
                     }
                 }
-
 
             </div>
 

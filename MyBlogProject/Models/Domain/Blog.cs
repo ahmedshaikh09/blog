@@ -21,7 +21,6 @@ namespace MyBlogProject.Models.Domain
         public DateTime? DateUpdated { get; set; }
         public virtual List<Comment> Comment { get; set; }
 
-
         public Blog()
         {
             DateCreated = DateTime.Now;
